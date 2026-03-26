@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ app_name }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  
+  <div class="shell">
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-copy">
+
+        <p class="eyebrow">Cloud Control Plane</p>
+        <h1>{{ app_name }}</h1>
+        
+        <p class="lead">
+          A real starter platform for projects, virtual machines, Kubernetes clusters, storage, billing, and ops activity.
+        </p>
+        <div class="credentials">
+          <div>
+            <span>Email</span>
+            <strong>{{ default_email }}</strong>
+          </div>
+          <div>
+            <span>Password</span>
+            <strong>{{ default_password }}</strong>
+          </div>
+          <div>
+            <span>API Token</span>
+            <strong>{{ default_token }}</strong>
+          </div>
+          <div>
+            <span>Environment</span>
+            <strong>{{ app_env }}</strong>
+          </div>
+        </div>
+      </div>
+      <div class="hero-panel">
+        <form id="login-form" class="card">
+          <h2>Console Login</h2>
+          <label>
+            Email
+            <input id="email" name="email" type="email" value="{{ default_email }}" required>
+          </label>
+          <label>
+            Password
+            <input id="password" name="password" type="password" value="{{ default_password }}" required>
+          </label>
+          <button type="submit">Open Dashboard</button>
+          <p id="login-status" class="muted">Sign in to load your control plane.</p>
+        </form>
+      </div>
+    </section>
+
+    <section id="dashboard" class="dashboard hidden">
+      <div class="topbar">
+        <div>
+          <p class="eyebrow">Operations</p>
+          <h2>Platform Dashboard</h2>
+        </div>
+        <button id="refresh-button" class="secondary">Refresh</button>
+      </div>
+
+      <div id="summary-grid" class="summary-grid"></div>
+
+      <div class="panel-grid">
+        <section class="card">
+          <div class="card-head">
+            <h3>Projects</h3>
+            <span class="muted">Launch new products fast</span>
+          </div>
+          <form id="project-form" class="inline-form">
+            <input name="name" type="text" placeholder="New project name" required>
+            <input name="region" type="text" placeholder="Region" value="ap-south-1" required>
+            <button type="submit">Create</button>
+          </form>
+          <div id="projects-list" class="list"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h3>Compute</h3>
+            <span class="muted">Provision virtual machines</span>
+          </div>
+          <form id="instance-form" class="stack-form">
+            <select name="project_id" required></select>
+            <input name="name" type="text" placeholder="Instance name" required>
+            <input name="region" type="text" placeholder="Region" value="ap-south-1" required>
+            <input name="vcpu" type="number" min="1" value="2" required>
+            <input name="memory_gb" type="number" min="1" value="8" required>
+            <button type="submit">Create Instance</button>
+          </form>
+          <div id="instances-list" class="list compact"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h3>Kubernetes</h3>
+            <span class="muted">Run multi-service workloads</span>
+          </div>
+          <form id="cluster-form" class="stack-form">
+            <select name="project_id" required></select>
+            <input name="name" type="text" placeholder="Cluster name" required>
+            <input name="region" type="text" placeholder="Region" value="ap-south-1" required>
+            <input name="node_count" type="number" min="1" value="3" required>
+            <input name="kubernetes_version" type="text" value="1.30" required>
+            <button type="submit">Create Cluster</button>
+          </form>
+          <div id="clusters-list" class="list compact"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h3>Object Storage</h3>
+            <span class="muted">Buckets for backups and data</span>
+          </div>
+          <form id="bucket-form" class="stack-form">
+            <select name="project_id" required></select>
+            <input name="name" type="text" placeholder="Bucket name" required>
+            <input name="region" type="text" placeholder="Region" value="ap-south-1" required>
+            <button type="submit">Create Bucket</button>
+          </form>
+          <div id="buckets-list" class="list compact"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h3>Billing</h3>
+            <span class="muted">Keep cost visibility close</span>
+          </div>
+          <div id="invoices-list" class="list compact"></div>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <h3>Activity Feed</h3>
+            <span class="muted">Track operator actions</span>
+          </div>
+          <div id="events-list" class="list compact"></div>
+        </section>
+      </div>
+    </section>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

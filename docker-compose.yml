@@ -1,0 +1,19 @@
+services:
+  orbit-cloud:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: Orbit Cloud
+      APP_ENV: development
+      SECRET_KEY: change-me-in-production
+      DEFAULT_ADMIN_EMAIL: admin@orbitcloud.local
+      DEFAULT_ADMIN_NAME: Company Admin
+      DEFAULT_ADMIN_PASSWORD: ChangeMe123!
+      DEFAULT_API_TOKEN: orbit-local-admin-token
+      DATABASE_PATH: data/orbitcloud.db
+    volumes:
+      - orbit_data:/app/data
+
+volumes:
+  orbit_data:
