@@ -16,6 +16,7 @@ from jose import jwt
 from datetime import datetime, timedelta
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
 
 # ---------------- CONFIG ----------------
 APP_NAME = os.getenv("APP_NAME", "Zoya Cloud")
@@ -124,22 +125,16 @@ def health():
 
 from datetime import datetime
 
+servers = []
+
 @app.post("/create-server")
-def create_server(name: str, token: str = Depends(oauth2_scheme)):
-    user = get_current_user(token)
+def create_server(name: str):
+    servers.append({"name": name})
+    return {"message": "Server created"}
 
-    server = {
-        "id": len(servers) + 1,
-        "name": name,
-        "user": user,
-        "status": "running",
-        "created_at": str(datetime.utcnow()),
-        "url": f"http://127.0.0.1:8000/{name}"
-    }
-
-    servers.append(server)
-
-    return {"message": "Server created", "server": server}
+@app.get("/servers")
+def get_servers():
+    return servers
 
 
 # ---------------- LOGIN ----------------
@@ -270,3 +265,21 @@ def create_server(name: str):
 @app.get("/servers")
 def get_servers():
     return servers
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
