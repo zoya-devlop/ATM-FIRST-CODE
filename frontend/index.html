@@ -117,17 +117,17 @@
   </div>
 
   <script>
-    async function createServer() {
-      const name = document.getElementById("name").value;
+async function createServer() {
+  const name = document.getElementById("name").value;
 
-      const res = await fetch("https://atm-first-code.onrender.com/create-server?name=" + name, {
-        method: "POST"
-      });
+  await fetch("https://atm-first-code.onrender.com/create-server?name=" + name, {
+    method: "POST"
+  });
 
-      const data = await res.json();
-      alert(JSON.stringify(data));
-    }
-  </script>
+  window.location.href = "dashboard.html";
+}
+</script>
 
 </body>
 </html>
+

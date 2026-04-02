@@ -284,3 +284,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.delete("/delete-server")
+def delete_server(name: str):
+    global servers
+    servers = [s for s in servers if s["name"] != name]
+    return {"message": "Deleted"}
