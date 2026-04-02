@@ -255,3 +255,18 @@ def register(email: str, password: str):
 @app.get("/")
 def home():
     return {"msg": "Zoya Cloud running"}
+
+@app.get("/servers")
+def get_servers():
+    return users
+
+servers = []
+
+@app.post("/create-server")
+def create_server(name: str):
+    servers.append({"name": name})
+    return {"message": "Server created"}
+
+@app.get("/servers")
+def get_servers():
+    return servers

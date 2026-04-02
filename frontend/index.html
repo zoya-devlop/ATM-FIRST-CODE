@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ZOY Cloud</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Poppins:wght@300&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(145deg, #e5e7eb, #f8fafc);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    .logo {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 100px;
+      font-weight: 800;
+      color: black;
+      letter-spacing: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .o {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 8px solid black;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 10px;
+      background: white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .o span {
+      font-size: 30px;
+      color: #3b82f6;
+    }
+
+    .tagline {
+      margin-top: 10px;
+      color: #64748b;
+    }
+
+    .glass {
+      margin-top: 40px;
+      backdrop-filter: blur(20px);
+      background: rgba(255,255,255,0.5);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    input {
+      padding: 12px;
+      width: 250px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background: #f1f5f9;
+      text-align: center;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 12px 30px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #3b82f6;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- LOGO -->
+    <div class="logo">
+      Z
+      <div class="o">
+        <span>☁️⬇️</span>
+      </div>
+      Y
+    </div>
+
+    <div class="tagline">Smart Cloud Engine</div>
+
+    <!-- GLASS BOX -->
+    <div class="glass">
+      <input type="text" id="name" placeholder="Enter instance name">
+      <br>
+      <button onclick="createServer()">Launch ⚡</button>
+    </div>
+
+  </div>
+
+  <script>
+    async function createServer() {
+      const name = document.getElementById("name").value;
+
+      const res = await fetch("https://atm-first-code.onrender.com/create-server?name=" + name, {
+        method: "POST"
+      });
+
+      const data = await res.json();
+      alert(JSON.stringify(data));
+    }
+  </script>
+
+</body>
+</html>

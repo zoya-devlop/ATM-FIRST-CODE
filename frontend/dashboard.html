@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ZOY Dashboard</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #020617;
+      color: white;
+      font-family: Arial;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .server {
+      background: rgba(255,255,255,0.05);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>My Servers ⚡</h1>
+
+<div id="list"></div>
+
+<script>
+  async function loadServers() {
+    const res = await fetch("https://atm-first-code.onrender.com/servers");
+    const data = await res.json();
+
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    data.forEach(server => {
+      const div = document.createElement("div");
+      div.className = "server";
+      div.innerText = server.name;
+      list.appendChild(div);
+    });
+  }
+
+  loadServers();
+</script>
+
+</body>
+</html>
