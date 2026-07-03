@@ -6,13 +6,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #020617, #0f172a);
-      color: white;
-      padding: 30px;
-    }
+   body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color: white;
+  padding: 30px;
+}
+
 
     h1 {
       text-align: center;
@@ -38,37 +39,92 @@
       color: #22c55e;
       margin-top: 10px;
     }
+
+    .delete-btn {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(239,68,68,0.2);
+  color: #ef4444;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.delete-btn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.card {
+  padding: 20px;
+  border-radius: 20px;
+  text-align: center;
+  transition: 0.3s;
+
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
   </style>
 </head>
 
 <body>
 
-<h1>⚡ ZOY Cloud Dashboard</h1>
+<h1 style="
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 1px;
+">
+⚡ ZOY Cloud Dashboard</h1>
+<button onclick="window.location.href='./index.html'" style="
+  padding:10px 15px;
+  border:none;
+  border-radius:8px;
+  background:#3b82f6;
+  color:white;
+  cursor:pointer;
+  margin-bottom:20px;
+">
+  + New Server
+</button>
 
 <div class="grid" id="list"></div>
 
 <script>
-  async function loadServers() {
-    const res = await fetch("https://atm-first-code.onrender.com/servers");
-    const data = await res.json();
+async function loadServers() {
+  const res = await fetch("https://atm-first-code.onrender.com/servers");
+  const data = await res.json();
 
-    const list = document.getElementById("list");
-    list.innerHTML = "";
+  const list = document.getElementById("list");
+  list.innerHTML = "";
 
-    data.forEach(server => {
-      const div = document.createElement("div");
-      div.className = "card";
+  data.forEach(server => {
+    const div = document.createElement("div");
+    div.className = "card";
 
-     div.innerHTML = `
-  <h3>${server.name}</h3>
-  <div class="status">Running 🟢</div>
-  <button onclick="deleteServer('${server.name}')">Delete ❌</button>
-`;
+    div.innerHTML = `
+      <h3>${server.name}</h3>
+      <div class="status">Running 🟢</div>
+      <button class="delete-btn" onclick="deleteServer('${server.name}')">
+        Delete
+      </button>
+    `;
 
-      list.appendChild(div);
-    });
+    list.appendChild(div);
+  });
+}
 
-    async function deleteServer(name) {
+async function deleteServer(name) {
   await fetch("https://atm-first-code.onrender.com/delete-server?name=" + name, {
     method: "DELETE"
   });
@@ -76,8 +132,9 @@
   loadServers();
 }
 
-  loadServers();
+loadServers();
 </script>
+
 
 </body>
 </html>

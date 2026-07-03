@@ -119,6 +119,10 @@
   <script>
 async function createServer() {
   const name = document.getElementById("name").value;
+if (!name) {
+  alert("Enter name first!");
+  return;
+}
 
   await fetch("https://atm-first-code.onrender.com/create-server?name=" + name, {
     method: "POST"
