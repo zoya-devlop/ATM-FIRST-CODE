@@ -12,34 +12,14 @@
 <body>
   
   <div class="shell">
-  <div class="shell">
     <section class="hero">
       <div class="hero-copy">
-
         <p class="eyebrow">Cloud Control Plane</p>
         <h1>{{ app_name }}</h1>
         
         <p class="lead">
           A real starter platform for projects, virtual machines, Kubernetes clusters, storage, billing, and ops activity.
         </p>
-        <div class="credentials">
-          <div>
-            <span>Email</span>
-            <strong>{{ default_email }}</strong>
-          </div>
-          <div>
-            <span>Password</span>
-            <strong>{{ default_password }}</strong>
-          </div>
-          <div>
-            <span>API Token</span>
-            <strong>{{ default_token }}</strong>
-          </div>
-          <div>
-            <span>Environment</span>
-            <strong>{{ app_env }}</strong>
-          </div>
-        </div>
       </div>
       <div class="hero-panel">
         <form id="login-form" class="card">
@@ -64,7 +44,36 @@
           <p class="eyebrow">Operations</p>
           <h2>Platform Dashboard</h2>
         </div>
-        <button id="refresh-button" class="secondary">Refresh</button>
+        
+        <div class="topbar-actions" style="display: flex; gap: 15px; align-items: center;">
+            <button id="refresh-button" class="secondary">Refresh</button>
+            
+            <div class="user-menu" style="position: relative;">
+                <button onclick="toggleCredentials()" style="background: #111; border: 1px solid #333; color: white; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                    ⚙️ Admin
+                </button>
+                
+                <div id="credentialsPopup" class="professional-dark" style="display: none; position: absolute; right: 0; top: 45px; width: 250px; padding: 15px; border: 1px solid #22c55e; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.8); z-index: 100; background: #0a0a0a;">
+                    <h4 style="margin-top:0; color: #22c55e; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">Admin Secrets</h4>
+                    <div style="margin-bottom: 10px;">
+                        <span style="font-size: 12px; color: #888;">Email</span><br>
+                        <strong style="color: #fff;">{{ default_email }}</strong>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <span style="font-size: 12px; color: #888;">Password</span><br>
+                        <strong style="color: #fff;">••••••••</strong>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <span style="font-size: 12px; color: #888;">API Token</span><br>
+                        <strong style="font-size: 12px; word-break: break-all; color: #fff;">{{ default_token }}</strong>
+                    </div>
+                    <div>
+                        <span style="font-size: 12px; color: #888;">Environment</span><br>
+                        <strong style="color: #fff;">{{ app_env }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
       </div>
 
       <div id="summary-grid" class="summary-grid"></div>
@@ -144,9 +153,101 @@
           </div>
           <div id="events-list" class="list compact"></div>
         </section>
+
+        <section class="card professional-dark" style="border: 1px solid #22c55e; border-radius: 8px;">
+            <div class="card-head">
+                <h3 style="color: #22c55e;">🌐 Custom Domain Mapping</h3>
+                <span style="color: #888; font-size: 14px;">Connect your registered domain directly to your cloud server instance.</span>
+            </div>
+            <div class="form-group" style="margin-top: 15px; margin-bottom: 15px;">
+                <input type="text" id="customDomainInput" placeholder="e.g., genx.style" style="width: 100%; padding: 10px; background: #111; border: 1px solid #333; color: #fff; border-radius: 4px;">
+            </div>
+            <button id="mapDomainBtn" class="zoy-btn-mint" onclick="deployCustomDomain()" style="background: #22c55e; color: #000; border: none; padding: 10px 20px; font-weight: bold; border-radius: 4px; cursor: pointer; width: 100%;">
+                Link Domain 🔗
+            </button>
+            <div id="mappingStatus" style="margin-top: 10px; font-weight: bold;"></div>
+        </section>
+
       </div>
     </section>
   </div>
-  <script src="/static/app.js"></script>
+  
+<script src="/static/app.js?v=999"></script>
+  
+  <script>
+  // 1. Toggle Admin Credentials Popup
+  function toggleCredentials() {
+      const popup = document.getElementById("credentialsPopup");
+      if (popup.style.display === "none" || popup.style.display === "") {
+          popup.style.display = "block";
+      } else {
+          popup.style.display = "none";
+      }
+  }
+
+  // 2. Custom Domain Mapper
+  async function deployCustomDomain() {
+      const domainValue = document.getElementById("customDomainInput").value;
+      const statusDiv = document.getElementById("mappingStatus");
+      
+      if(!domainValue) {
+          statusDiv.innerHTML = "<span style='color: #ef4444;'>❌ Please enter a valid domain name first.</span>";
+          return;
+      }
+      statusDiv.innerHTML = "<span style='color: #eab308;'>⚙️ Instructing Zoy Control Plane... Mapping infrastructure...</span>";
+      
+      const payload = {
+          instance_id: "nginx-web-server-01", 
+          custom_domain: domainValue,
+          internal_ip: "192.168.1.10", 
+          internal_port: 80
+      };
+      
+      try {
+          const response = await fetch('/api/v1/cloud/map-domain', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+          });
+          const result = await response.json();
+          if(response.ok && result.status === "success") {
+              statusDiv.innerHTML = `<span style='color: #22c55e;'>✅ Success! ${domainValue} is now live on Zoy's Cloud.</span>`;
+          } else {
+              statusDiv.innerHTML = `<span style='color: #ef4444;'>❌ Cloud Error: ${result.detail || 'Mapping failed.'}</span>`;
+          }
+      } catch (error) {
+          statusDiv.innerHTML = "<span style='color: #ef4444;'>❌ Connection Lost: Unable to reach Zoy Control Plane.</span>";
+      }
+  }
+
+  // 🛡️ 3. THE SMART DELETE FUNCTION (SUDO PIN PROTECTED) 
+  // Yeh function humne globally window object par laga diya hai taaki static/app.js ki purani file ko overwrite kar sake!
+  window.deleteInstance = async function(id) {
+      const enteredPin = prompt("⚠️ WARNING: You are about to DESTROY this server.\n\nEnter Admin PIN to confirm destruction:");
+
+      if (!enteredPin) {
+          alert("🛡️ Action Cancelled. Your server is safe!");
+          return;
+      }
+
+      try {
+          // PIN ko URL ke end mein lagakar backend ko bhejo
+          const response = await fetch(`/api/instances/${id}?pin=${enteredPin}`, {
+              method: 'DELETE'
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+              alert("✅ " + data.message);
+              location.reload(); 
+          } else {
+              alert(data.detail); 
+          }
+      } catch (error) {
+          alert("Server Error: " + error);
+      }
+  };
+  </script>
 </body>
 </html>

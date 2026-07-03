@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoy's Cloud | Premium Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* 🌌 Premium Dark Theme & Glassmorphism */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body {
+            background-color: #0b0f19; color: #ffffff; display: flex;
+            justify-content: center; align-items: center; height: 100vh;
+            overflow: hidden; position: relative;
+        }
+        
+        .glow-circle-1 {
+            position: absolute; width: 400px; height: 400px; background: rgba(56, 189, 248, 0.15);
+            border-radius: 50%; filter: blur(80px); top: -100px; left: -100px;
+        }
+        .glow-circle-2 {
+            position: absolute; width: 300px; height: 300px; background: rgba(168, 85, 247, 0.15);
+            border-radius: 50%; filter: blur(80px); bottom: -50px; right: -50px;
+        }
+
+        .lang-switch {
+            position: absolute; top: 30px; right: 40px; z-index: 10;
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer;
+            backdrop-filter: blur(10px); transition: 0.3s;
+        }
+        .lang-switch:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05); padding: 50px 40px;
+            border-radius: 24px; width: 100%; max-width: 420px; z-index: 5;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); text-align: center;
+        }
+
+        .glass-card h2 { font-size: 28px; font-weight: 600; margin-bottom: 10px; letter-spacing: -0.5px;}
+        .glass-card p { font-size: 14px; color: #94a3b8; margin-bottom: 30px; }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-group input {
+            width: 100%; padding: 14px 16px; background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; 
+            color: white; font-size: 15px; transition: all 0.3s ease;
+        }
+        .input-group input:focus { outline: none; border-color: #38bdf8; background: rgba(0, 0, 0, 0.4); box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
+        
+        .btn {
+            width: 100%; padding: 14px; background: linear-gradient(135deg, #38bdf8, #818cf8);
+            border: none; border-radius: 12px; color: white; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: 0.3s; margin-top: 10px;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4); }
+
+        .toggle-link {
+            display: block; margin-top: 20px; font-size: 14px; color: #94a3b8;
+            cursor: pointer; text-decoration: none; transition: color 0.3s;
+        }
+        .toggle-link:hover { color: #38bdf8; }
+
+        #signup-form { display: none; }
+
+        /* 🚀 NAYA JADOO: Premium Floating Notification (Toast) */
+        .toast {
+            position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%);
+            background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(16, 185, 129, 0.5);
+            backdrop-filter: blur(10px); color: white; padding: 12px 24px;
+            border-radius: 50px; font-size: 14px; font-weight: 600;
+            transition: bottom 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .toast.show { bottom: 40px; }
+        .toast.error { background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); }
+
+    </style>
+</head>
+<body>
+
+    <div class="glow-circle-1"></div>
+    <div class="glow-circle-2"></div>
+
+    <button class="lang-switch" onclick="toggleLanguage()">🌐 English</button>
+
+    <div class="glass-card">
+        <div id="login-form">
+            <h2 id="title-login">Welcome to Zoy</h2>
+            <p id="sub-login">Simplifying the cloud for you.</p>
+            
+            <div class="input-group">
+                <input type="email" id="email-login" placeholder="Email Address">
+            </div>
+            <div class="input-group">
+                <input type="password" id="pass-login" placeholder="Password">
+            </div>
+            
+            <button class="btn" id="btn-login" onclick="handleLogin()">Enter Zoy's Cloud</button>
+            <span class="toggle-link" id="link-to-signup" onclick="switchForm('signup')">New here? Create account</span>
+        </div>
+
+        <div id="signup-form">
+            <h2 id="title-signup">Create Account</h2>
+            <p id="sub-signup">Start your journey today.</p>
+            
+            <div class="input-group">
+                <input type="text" id="name-signup" placeholder="Full Name">
+            </div>
+            <div class="input-group">
+                <input type="email" id="email-signup" placeholder="Email Address">
+            </div>
+            <div class="input-group">
+                <input type="password" id="pass-signup" placeholder="Password">
+            </div>
+            
+            <button class="btn" id="btn-signup" onclick="handleSignup()">Join Zoy's Cloud</button>
+            <span class="toggle-link" id="link-to-login" onclick="switchForm('login')">Already have an account? Login</span>
+        </div>
+    </div>
+
+    <div id="toast-msg" class="toast"></div>
+
+    <script>
+        // ---------------------------------------------------------
+        // UI & NOTIFICATION LOGIC
+        // ---------------------------------------------------------
+        
+        // Premium Message dikhane ka function
+        function showMessage(msg, isError = false) {
+            const toast = document.getElementById('toast-msg');
+            toast.innerText = msg;
+            if (isError) {
+                toast.classList.add('error');
+            } else {
+                toast.classList.remove('error');
+            }
+            toast.classList.add('show');
+            
+            // 3 second baad apne aap gayab ho jayega
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function switchForm(formType) {
+            if(formType === 'signup') {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('signup-form').style.display = 'block';
+            } else {
+                document.getElementById('signup-form').style.display = 'none';
+                document.getElementById('login-form').style.display = 'block';
+            }
+        }
+
+        const translations = {
+            en: {
+                titleLogin: "Welcome to Zoy", subLogin: "Simplifying the cloud for you.",
+                emailPlaceholder: "Email Address", passPlaceholder: "Password", namePlaceholder: "Full Name",
+                btnLogin: "Enter Zoy's Cloud", linkToSignup: "New here? Create account",
+                titleSignup: "Create Account", subSignup: "Start your journey today.",
+                btnSignup: "Join Zoy's Cloud", linkToLogin: "Already have an account? Login",
+                langBtn: "🌐 English"
+            },
+            hi: {
+                titleLogin: "ज़ॉय में आपका स्वागत है", subLogin: "क्लाउड को आपके लिए आसान बनाते हुए।",
+                emailPlaceholder: "ईमेल दर्ज करें", passPlaceholder: "पासवर्ड", namePlaceholder: "पूरा नाम",
+                btnLogin: "ज़ॉय क्लाउड में प्रवेश करें", linkToSignup: "नए हैं? खाता बनाएँ",
+                titleSignup: "खाता बनाएँ", subSignup: "आज ही अपनी यात्रा शुरू करें।",
+                btnSignup: "ज़ॉय क्लाउड से जुड़ें", linkToLogin: "पहले से खाता है? लॉगिन करें",
+                langBtn: "🌐 हिंदी"
+            }
+        };
+
+        let currentLang = 'en';
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'hi' : 'en';
+            const text = translations[currentLang];
+            
+            document.getElementById('title-login').innerText = text.titleLogin;
+            document.getElementById('sub-login').innerText = text.subLogin;
+            document.getElementById('btn-login').innerText = text.btnLogin;
+            document.getElementById('link-to-signup').innerText = text.linkToSignup;
+            
+            document.getElementById('title-signup').innerText = text.titleSignup;
+            document.getElementById('sub-signup').innerText = text.subSignup;
+            document.getElementById('btn-signup').innerText = text.btnSignup;
+            document.getElementById('link-to-login').innerText = text.linkToLogin;
+            
+            document.getElementById('email-login').placeholder = text.emailPlaceholder;
+            document.getElementById('pass-login').placeholder = text.passPlaceholder;
+            document.getElementById('name-signup').placeholder = text.namePlaceholder;
+            document.getElementById('email-signup').placeholder = text.emailPlaceholder;
+            document.getElementById('pass-signup').placeholder = text.passPlaceholder;
+            
+            document.querySelector('.lang-switch').innerText = text.langBtn;
+        }
+
+        // ---------------------------------------------------------
+        // API LOGIC (Backend Connection)
+        // ---------------------------------------------------------
+
+        async function handleSignup() {
+            const name = document.getElementById('name-signup').value;
+            const email = document.getElementById('email-signup').value;
+            const password = document.getElementById('pass-signup').value;
+
+            if (!name || !email || !password) {
+                showMessage(currentLang === 'en' ? "Please fill all fields!" : "Kripya sabhi details bharein!", true);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, name: name, password: password })
+                });
+                
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 🎉 1. Premium Message Dikhao
+                    showMessage(currentLang === 'en' ? "Account Created! Please Login." : "खाता बन गया! कृपया लॉगिन करें।"); 
+                    
+                    // 🔄 2. Form badal do
+                    switchForm('login'); 
+                    
+                    // ✍️ 3. Naye form mein Email apne aap likh do taaki mehnat na karni pade
+                    document.getElementById('email-login').value = email;
+                    
+                    // Form khali kar do agle ke liye
+                    document.getElementById('name-signup').value = "";
+                    document.getElementById('email-signup').value = "";
+                    document.getElementById('pass-signup').value = "";
+
+                } else {
+                    showMessage("⚠️ " + data.detail, true); 
+                }
+            } catch (error) {
+                showMessage("Server offline!", true);
+            }
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('email-login').value;
+            const password = document.getElementById('pass-login').value;
+
+            if (!email || !password) {
+                showMessage(currentLang === 'en' ? "Please enter email and password!" : "Kripya email aur password daalein!", true);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
+                });
+                
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('zoy_token', data.access_token);
+                    showMessage("✅ Login Successful!");
+                    
+                    // Thodi der baad automatically dashboard par bhej do
+                    setTimeout(() => {
+                        window.location.href = "/"; 
+                    }, 1000);
+                } else {
+                    showMessage("❌ " + data.detail, true); 
+                }
+            } catch (error) {
+                showMessage("Server offline!", true);
+            }
+        }
+    </script>
+</body>
+</html>
