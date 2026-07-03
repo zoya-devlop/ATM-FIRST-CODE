@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 fastapi==0.110.0
 pydantic==1.10.13
 uvicorn==0.29.0
@@ -6,3 +7,14 @@ fastapi==0.115.8
 pydantic==2.6.4
 uvicorn==0.29.0
 
+=======
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+alembic==1.13.1
+passlib[bcrypt]==1.7.4
+>>>>>>> c811f18c4885e1b1043028d003c48fa786ce2a85

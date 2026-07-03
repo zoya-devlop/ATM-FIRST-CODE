@@ -1,7 +1,18 @@
+print("FILE RUNNING")
 import os
+<<<<<<< HEAD
 import uvicorn
 from fastapi import FastAPI, Request, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+=======
+import subprocess
+import secrets
+from datetime import datetime, timezone
+from typing import Any
+
+from fastapi import FastAPI, Header, HTTPException, Request, status, Depends
+from fastapi.responses import HTMLResponse
+>>>>>>> c811f18c4885e1b1043028d003c48fa786ce2a85
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -9,6 +20,7 @@ from sqlalchemy.orm import Session
 import docker
 import random
 
+<<<<<<< HEAD
 # Database aur Models Connection (Direct from Folder Init)
 from app.services.database import engine, Base, get_db
 import app.models as models
@@ -156,6 +168,160 @@ def scan_item(barcode: str, tenant_id: str = Depends(get_current_tenant), db: Se
 
 class CheckoutRequest(BaseModel):
     barcodes: list[str]
+=======
+from passlib.context import CryptContext
+from jose import jwt
+from datetime import datetime, timedelta
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
+
+# ---------------- CONFIG ----------------
+APP_NAME = os.getenv("APP_NAME", "Zoya Cloud")
+APP_ENV = os.getenv("APP_ENV", "development")
+
+DEFAULT_ADMIN_EMAIL = os.getenv("DEFAULT_ADMIN_EMAIL", "admin@zoya.com")
+DEFAULT_ADMIN_NAME = os.getenv("DEFAULT_ADMIN_NAME", "Admin")
+DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD", "123456")
+DEFAULT_API_TOKEN = os.getenv("DEFAULT_API_TOKEN", "zoya-token")
+
+
+# ---------------- APP ----------------
+app = FastAPI(
+    title=APP_NAME,
+    version="1.0.0"
+)
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+SECRET_KEY = "zoya_secret"
+ALGORITHM = "HS256"
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+
+users = []
+
+def hash_password(password: str):
+    return pwd_context.hash(password)
+
+def verify_password(plain, hashed):
+    return pwd_context.verify(plain, hashed)
+
+def create_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(hours=1)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+def get_current_user(token: str):
+    payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    return payload.get("sub")
+ 
+# ---------------- UTILS ----------------
+def utc_now():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def slugify(value: str):
+    return "-".join(value.lower().strip().split())
+
+
+# ---------------- DOCKER ----------------
+def create_container():
+    try:
+        result = subprocess.run(
+            ["docker", "run", "-d", "-p", "8090:80", "nginx"],
+            capture_output=True,
+            text=True
+        )
+        return result.stdout
+    except Exception as e:
+        return str(e)
+
+
+# ---------------- AUTH ----------------
+def require_token(authorization: str | None = Header(default=None)) -> dict:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    token = authorization.replace("Bearer ", "").strip()
+
+    with get_connection() as connection:
+        user = connection.execute(
+            "SELECT id, email, name, api_token FROM users WHERE api_token = ?",
+            (token,),
+        ).fetchone()
+
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    return dict(user)
+
+
+# ---------------- ROUTES ----------------
+@app.get("/", response_class=HTMLResponse)
+def home(request: Request):
+    return templates.TemplateResponse("index.html", {
+        "request": request,
+        "app_name": APP_NAME,
+        "default_email": DEFAULT_ADMIN_EMAIL,
+        "default_password": DEFAULT_ADMIN_PASSWORD,
+        "default_token": DEFAULT_API_TOKEN,
+        "app_env": APP_ENV
+    })
+
+
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "service": APP_NAME,
+        "environment": APP_ENV,
+        "time": utc_now()
+    }
+
+
+from datetime import datetime
+
+servers = []
+
+@app.post("/create-server")
+def create_server(name: str):
+    servers.append({"name": name})
+    return {"message": "Server created"}
+
+@app.get("/servers")
+def get_servers():
+    return servers
+
+
+# ---------------- LOGIN ----------------
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+@app.post("/api/auth/login")
+def login(payload: LoginRequest):
+    with get_connection() as connection:
+        user = connection.execute(
+            "SELECT id, email, name, password, api_token FROM users WHERE email = ?",
+            (payload.email,),
+        ).fetchone()
+
+    if not user or user["password"] != payload.password:
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+>>>>>>> c811f18c4885e1b1043028d003c48fa786ce2a85
 
 @app.post("/api/checkout/")
 def checkout_store_cart(request: CheckoutRequest, tenant_id: str = Depends(get_current_tenant), db: Session = Depends(get_db)):
@@ -169,6 +335,7 @@ def checkout_store_cart(request: CheckoutRequest, tenant_id: str = Depends(get_c
     if not itemized_bill:
         return {"status": "error", "message": "❌ Cart khali hai!"}
     return {
+<<<<<<< HEAD
         "status": "success",
         "total_payable": total_amount,
         "security_exit_token": f"ZOY-EXIT-{total_amount}-ITEMS-{len(itemized_bill)}",
@@ -179,6 +346,21 @@ def checkout_store_cart(request: CheckoutRequest, tenant_id: str = Depends(get_c
 # =====================================================================
 # 🌐 ZOY'S OMNI-MATRIX (ZOM) P2P NETWORK APIs
 # =====================================================================
+=======
+        "token": user["api_token"],
+        "user": {
+            "id": user["id"],
+            "email": user["email"],
+            "name": user["name"]
+        }
+    }
+
+
+# ---------------- USER ----------------
+@app.get("/api/me")
+def me(current_user: dict = Depends(require_token)):
+    return {"user": current_user}
+>>>>>>> c811f18c4885e1b1043028d003c48fa786ce2a85
 
 class NodeJoinRequest(BaseModel):
     device_id: str
@@ -186,6 +368,7 @@ class NodeJoinRequest(BaseModel):
     ip_address: str
     total_storage_mb: float
 
+<<<<<<< HEAD
 @app.post("/api/v1/zom/node/join")
 def join_zom_network(request: NodeJoinRequest, tenant_id: str = Depends(get_current_tenant), db: Session = Depends(get_db)):
     existing_node = db.query(EdgeNode).filter(EdgeNode.device_id == request.device_id).first()
@@ -408,3 +591,114 @@ async def upload_and_split_file(
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+=======
+# ---------------- PROJECT CREATE ----------------
+class ProjectCreate(BaseModel):
+    name: str = Field(min_length=2, max_length=80)
+    region: str = Field(min_length=2, max_length=40)
+
+
+@app.post("/api/projects")
+def create_project(payload: ProjectCreate, current_user: dict = Depends(require_token)):
+    created_at = utc_now()
+    slug = f"{slugify(payload.name)}-{secrets.token_hex(2)}"
+
+    with get_connection() as connection:
+        connection.execute(
+            """
+            INSERT INTO projects (name, slug, region, owner_email, created_at)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (payload.name, slug, payload.region, current_user["email"], created_at),
+        )
+
+    return {"status": "project created", "slug": slug}
+
+@app.get("/servers")
+def list_servers():
+    import subprocess
+    try:
+        result = subprocess.run(
+            ["docker", "ps", "-a", "--format", "{{.ID}} {{.Image}} {{.Status}}"],
+            capture_output=True,
+            text=True
+        )
+        servers = result.stdout.strip().split("\n")
+        return {"servers": servers}
+    except Exception as e:
+        return {"error": str(e)}
+    
+    
+@app.delete("/delete-server/{container_id}")
+def delete_server(container_id: str):
+    import docker
+
+    client = docker.from_env()
+
+    try:
+        container = client.containers.get(container_id)
+        container.remove(force=True)
+        return {"status": "deleted"}
+    except Exception as e:
+        return {"error": str(e)}
+    
+    @app.post("/register")
+    def register(email: str, password: str):
+        hashed = hash_password(password)
+        users.append({"email": email, "password": hashed})
+        return {"message": "User registered"}
+   
+from fastapi import Form
+
+@app.post("/login")
+def login(username: str = Form(...), password: str = Form(...)):
+    for user in users:
+        if user["email"] == username and verify_password(password, user["password"]):
+            token = create_token({"sub": username})
+            return {"access_token": token}
+    return {"error": "Invalid credentials"}
+
+@app.get("/protected")
+def protected(token: str = Depends(oauth2_scheme)):
+    return {"message": "You are logged in"}
+
+@app.post("/register")
+def register(email: str, password: str):
+    hashed = hash_password(password)
+    users.append({"email": email, "password": hashed})
+    return {"message": "User registered"}
+
+
+@app.get("/")
+def home():
+    return {"msg": "Zoya Cloud running"}
+
+@app.get("/servers")
+def get_servers():
+    return users
+
+servers = []
+
+@app.post("/create-server")
+def create_server(name: str):
+    servers.append({"name": name})
+    return {"message": "Server created"}
+
+@app.get("/servers")
+def get_servers():
+    return servers
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.delete("/delete-server")
+def delete_server(name: str):
+    global servers
+    servers = [s for s in servers if s["name"] != name]
+    return {"message": "Deleted"}
+>>>>>>> c811f18c4885e1b1043028d003c48fa786ce2a85
