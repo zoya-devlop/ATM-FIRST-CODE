@@ -65,6 +65,87 @@ def api_scan(request: ScanRequest, db: Session = Depends(get_db)):
     basket_total = sum(i["item_total"] for i in cart)
     cart_count = sum(i["quantity"] for i in cart)
     
+# ===================================================================================
+#                      ZOM CLOUD INFRASTRUCTURE NETWORK SECTION
+# ===================================================================================
+from app.models.zom_models import Node, IncentiveLedger # Jo file humne abhi banayi thi
+import datetime
+
+# --- INFRASTRUCTURE REQUEST SCHEMAS ---
+class NodeRegisterRequest(BaseModel):
+    node_uuid: str
+    owner_wallet: str
+    ip_address: str = None
+
+class NodePingRequest(BaseModel):
+    node_uuid: str
+
+# --- NODE REGISTRATION ROUTE ---
+@app.post("/api/infra/register")
+def register_node(request: NodeRegisterRequest, db: Session = Depends(get_db)):
+    # Check karo ki kya ye machine pehle se registered hai?
+    existing_node = db.query(Node).filter(Node.node_uuid == request.node_uuid).first()
+    
+    if existing_node:
+        return {"success": True, "message": "Node already registered. Active status synchronized."}
+    
+    # Nayi machine ko matrix network mein insert karo
+    new_node = Node(
+        node_uuid=request.node_uuid,
+        owner_wallet=request.owner_wallet,
+        ip_address=request.ip_address,
+        current_status="online",
+        last_ping=datetime.datetime.utcnow()
+    )
+    db.add(new_node)
+    db.commit()
+    
+    return {"success": True, "message": f"Node registered successfully under wallet {request.owner_wallet[:8]}..."}
+
+# --- NODE LIFE-SIGNAL (PING) & INCENTIVE TRACKER ---
+@app.post("/api/infra/ping")
+def node_ping(request: NodePingRequest, db: Session = Depends(get_db)):
+    node = db.query(Node).filter(Node.node_uuid == request.node_uuid).first()
+    
+    if not node:
+        return {"success": False, "message": "Node footprint unrecognized. Please register first."}
+    
+    now = datetime.datetime.utcnow()
+    
+    # Simple Uptime Math: Kitni der baad doosra ping aaya
+    time_diff = (now - node.last_ping).total_seconds()
+    
+    # Agar device lagatar connected tha (30-60 secs ke standard bracket mein), toh coins calculate karo
+    if node.current_status == "online" and 0 < time_diff < 120:
+        # Standard Formula: 1 second online = 0.001 ZOY Coins
+        reward_amount = time_diff * 0.001
+        
+        # 1. Update system ledger passbook
+        ledger_entry = IncentiveLedger(
+            node_id=node.id,
+            amount_credited=reward_amount,
+            session_uptime_seconds=int(time_diff)
+        )
+        db.add(ledger_entry)
+        
+        # 2. Sync node status update
+        node.last_ping = now
+        db.commit()
+        
+        return {
+            "success": True, 
+            "status": "online", 
+            "reward_credited": reward_amount,
+            "message": "Uptime verified. Shard splitting capability secure."
+        }
+    else:
+        # Agar bohot dino baad ping aaya ya pehli baar online ho rha hai
+        node.current_status = "online"
+        node.last_ping = now
+        db.commit()
+        
+        return {"success": True, "status": "online", "reward_credited": 0.0, "message": "Session initialized."}
+
     return {
         "success": True,
         "added_item": item.name,
